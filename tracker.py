@@ -7,3 +7,15 @@ def search_pastes(keywords):
     #simulate results:
     return [{"title": "Leaked credentials", "url": "http://example.com", "snippet": "admin:password123"}]
 
+def main():
+    keywords = ["example.com", "admin", "password"]
+    while True:
+        results = search_pastes(keywords)
+        for result in results:
+            print(f"FOUND: {result['title']} at {result['url']}")
+            print(f"Snippet: {result['snippet']}\n")
+        time.sleep(300) #check every 5min for now - placeholder
+
+#check that built-in var __name__ is set to __main__ -- only runs main() if file is executed directly, not imported
+if __name__ == "__main__":
+    main()
