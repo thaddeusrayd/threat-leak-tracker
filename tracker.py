@@ -24,6 +24,14 @@ def search_pastes(keywords):
     headers = {"User-Agent": random.choice(USER_AGENTS)}
     response = requests.get(url, headers=headers)
 
+    if response.status_code != 200:
+        print("Failed to fetch Pastebin archive.")
+        return []
+    
+    #using BeautifulSoup mainly for error tolerance -- unreliable paste site HTML
+    soup = BeautifulSoup(response.text, "html.parser")
+    paste_links = soup.select(".maintable a[href^='/']")[:5]
+
 def main():
     keywords = ["example.com", "admin", "password"]
     while True:
@@ -31,7 +39,7 @@ def main():
         for result in results:
             print(f"FOUND: {result['title']} at {result['url']}")
             print(f"Snippet: {result['snippet']}\n")
-        time.sleep(300) #check every 5min for now - placeholder
+       # time.sleep(300) #check every 5min for now - placeholder
 
 if __name__ == "__main__":
     main()
