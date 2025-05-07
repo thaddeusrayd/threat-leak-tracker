@@ -32,6 +32,25 @@ def search_pastes(keywords):
     soup = BeautifulSoup(response.text, "html.parser")
     paste_links = soup.select(".maintable a[href^='/']")[:5]
 
+    results = []
+
+    for link in paste_links:
+        paste_url = f"https://pastebin.com{link['href']}"
+        paste_response = requests.get(paste_url, headers=headers)
+
+        if paste_response.status_code != 200:
+            continue
+
+        if any(keyword.lower() in paste_response.text.lower() for keyword in keywords):
+            results.append({
+                "title": link.text.strip(),
+                "url": paste_url,
+                "snippet": paste_response.text[:200]
+            })
+
+
+    return results
+
 def main():
     keywords = ["example.com", "admin", "password"]
     while True:
