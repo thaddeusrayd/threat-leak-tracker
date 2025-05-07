@@ -16,6 +16,5 @@ def main():
             print(f"Snippet: {result['snippet']}\n")
         time.sleep(300) #check every 5min for now - placeholder
 
-#check that built-in var __name__ is set to __main__ -- only runs main() if file is executed directly, not imported
 if __name__ == "__main__":
     main()
