@@ -28,7 +28,9 @@ def search_pastes(keywords):
         return []
     #using BeautifulSoup mainly for error tolerance -- unreliable paste site HTML
     soup = BeautifulSoup(response.text, "html.parser")
-    paste_links = soup.select(".maintable a[href^='/']")[:5]
+    all_links = soup.select(".maintable a[href^='/']")
+    paste_links = [link for link in all_links if not link['href'].startswith('/archive')][:5]
+
 
     results = []
 
@@ -36,13 +38,14 @@ def search_pastes(keywords):
         paste_url = f"https://pastebin.com{link['href']}"
         #get_text is a beautifulsoup method that extract only text; setting strip to true removes leading and trailing whitespace
         paste_title = link.get_text(strip=True)
+        print(paste_title)
 
         paste_response = requests.get(paste_url, headers=headers)
         if paste_response.status_code != 200:
             continue
         
         paste_soup = BeautifulSoup(paste_response.text, "html.parser")
-        content_div = paste_soup.find("textarea", {"id": "paste_code"})
+        content_div = paste_soup.find("ol")
 
         #new loop for searching keywords
         if content_div:
@@ -58,7 +61,7 @@ def search_pastes(keywords):
     return results
 
 def main():
-    keywords = ["example.com", "admin", "password"]
+    keywords = ["example.com", "admin", "password", "exploit", "accounts"]
     while True:
         results = search_pastes(keywords)
         for result in results:
