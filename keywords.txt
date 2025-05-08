@@ -3,3 +3,4 @@ admin
 password
 leak
 confidential
+function

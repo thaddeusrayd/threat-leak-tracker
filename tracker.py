@@ -44,14 +44,18 @@ def search_pastes(keywords):
             continue
         
         paste_soup = BeautifulSoup(paste_response.text, "html.parser")
-        content_div = paste_soup.find("ol")
+        main_content = paste_soup.find("ol")
+        #previously content_div = paste_soup.find("textarea", {"id": "paste_code"})
+        ## pastebin changed layout to ordered list to mimic a code editor
 
         #new loop for searching keywords
-        if content_div:
-            paste_text = content_div.get_text()
+        if main_content:
+            paste_text = main_content.get_text().lower()
             for keyword in keywords:
-                if keyword in paste_text.lower():
+                if keyword in paste_text:
+#                    print(f"Matched keyword '{keyword}'")
                     results.append({
+                        "keyword": keyword,
                         "title": paste_title,
                         "url": paste_url,
                         "snippet": paste_text[:300]
@@ -72,6 +76,7 @@ def main():
     while True:
         results = search_pastes(keywords)
         for result in results:
+            print(f"Matched keyword: '{result['keyword']}'")
             print(f"FOUND: {result['title']} at {result['url']}")
             print(f"Snippet: {result['snippet']}\n")
        # time.sleep(300) #check every 5min for now - placeholder
