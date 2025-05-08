@@ -2,18 +2,29 @@ import requests
 from bs4 import BeautifulSoup 
 from datetime import datetime
 import random
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("tracker.log"), #log to tracker.log
+        logging.StreamHandler() #log to console
+    ]
+)
 
 def search_pastes(keywords):
     #grab pastes from pastebin archive
     url = "https://pastebin.com/archive"
     #spoofed user-agent header to get past less sophisticated bot blockers
     headers = {"User-Agent": random.choice(load_filepath('user-agents.txt', lowercase=False))}
-    print(f"[{datetime.now()}] Fetching recent pastes...")
+    logging.info("Fetching recent pastes...")
 
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        print("Failed to fetch Pastebin archive.")
+        logging.error(f"Failed to fetch Pastebin archive. Status code: {response.status_code}")
         return []
+    
     #using BeautifulSoup mainly for error tolerance -- unreliable paste site HTML
     soup = BeautifulSoup(response.text, "html.parser")
     all_links = soup.select(".maintable a[href^='/']")
@@ -29,6 +40,7 @@ def search_pastes(keywords):
 
         paste_response = requests.get(paste_url, headers=headers)
         if paste_response.status_code != 200:
+            logging.warning(f"Failed to fetch paste at {paste_url}. Status code: {paste_response.status_code}")
             continue
         
         paste_soup = BeautifulSoup(paste_response.text, "html.parser")
@@ -41,7 +53,6 @@ def search_pastes(keywords):
             paste_text = "\n".join(li.get_text() for li in content.find_all('li')).lower()
             for keyword in keywords:
                 if keyword in paste_text:
-#                    print(f"Matched keyword '{keyword}'")
                     results.append({
                         "keyword": keyword,
                         "title": paste_title,
@@ -58,16 +69,19 @@ def load_filepath(filepath, lowercase=False):
             lines = [line.strip() for line in file if line.strip()]
             return [line.lower() for line in lines] if lowercase else lines
     except FileNotFoundError:
-        print(f"[{datetime.now()}] File not found: {filepath}")
+        logging.error("File note found: {filepath}")
         return []
 
 def main():
     while True:
+        logging.info("Starting search for new pastes...")
         results = search_pastes(load_filepath('keywords.txt'))
+        if not results:
+            logging.info("No new matches pastes found.")
         for result in results:
-            print(f"Matched keyword: '{result['keyword']}'")
-            print(f"FOUND: {result['title']} at {result['url']}")
-            print(f"Snippet: {result['snippet']}\n")
+            logging.info(f"Matched keyword '{result['keyword']}'")
+            logging.info(f"FOUND: {result['title']} at {result['url']}")
+            logging.info(f"Snippet: {result['snippet']}\n")
 
 if __name__ == "__main__":
     main()
