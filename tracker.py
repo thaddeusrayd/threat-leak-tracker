@@ -39,8 +39,11 @@ def search_pastes(keywords):
         paste_title = link.get_text(strip=True)
 
         paste_response = requests.get(paste_url, headers=headers)
-        if paste_response.status_code != 200:
-            logging.warning(f"Failed to fetch paste at {paste_url}. Status code: {paste_response.status_code}")
+        try:
+            paste_response = requests.get(paste_url, headers=headers)
+            paste_response.raise_for_status() #raise error for bad status codes instead of just checking for 200
+        except requests.exceptions.RequestException as e:
+            logging.warning(f"Failed to fetch paste at {paste_url}. Error: {e}")
             continue
         
         paste_soup = BeautifulSoup(paste_response.text, "html.parser")
@@ -69,7 +72,7 @@ def load_filepath(filepath, lowercase=False):
             lines = [line.strip() for line in file if line.strip()]
             return [line.lower() for line in lines] if lowercase else lines
     except FileNotFoundError:
-        logging.error("File note found: {filepath}")
+        logging.error(f"File not found: {filepath}")
         return []
 
 def main():
@@ -77,11 +80,12 @@ def main():
         logging.info("Starting search for new pastes...")
         results = search_pastes(load_filepath('keywords.txt'))
         if not results:
-            logging.info("No new matches pastes found.")
+            logging.info("No new paste matches found.")
         for result in results:
             logging.info(f"Matched keyword '{result['keyword']}'")
             logging.info(f"FOUND: {result['title']} at {result['url']}")
             logging.info(f"Snippet: {result['snippet']}\n")
+        logging.info("Completed search cycle. Waiting for the next cycle.")
 
 if __name__ == "__main__":
     main()
