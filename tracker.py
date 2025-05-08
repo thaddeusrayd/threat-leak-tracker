@@ -29,7 +29,7 @@ def search_pastes(keywords):
     #using BeautifulSoup mainly for error tolerance -- unreliable paste site HTML
     soup = BeautifulSoup(response.text, "html.parser")
     all_links = soup.select(".maintable a[href^='/']")
-    paste_links = [link for link in all_links if not link['href'].startswith('/archive')][:5]
+    paste_links = [link for link in all_links if "archive" not in link['href']][:5]
 
 
     results = []
@@ -38,7 +38,6 @@ def search_pastes(keywords):
         paste_url = f"https://pastebin.com{link['href']}"
         #get_text is a beautifulsoup method that extract only text; setting strip to true removes leading and trailing whitespace
         paste_title = link.get_text(strip=True)
-        print(paste_title)
 
         paste_response = requests.get(paste_url, headers=headers)
         if paste_response.status_code != 200:
