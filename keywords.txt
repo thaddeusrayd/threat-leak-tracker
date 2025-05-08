@@ -1,0 +1,5 @@
+example.com
+admin
+password
+leak
+confidential

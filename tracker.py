@@ -50,7 +50,7 @@ def search_pastes(keywords):
         if content_div:
             paste_text = content_div.get_text()
             for keyword in keywords:
-                if keyword.lower() in paste_text.lower():
+                if keyword in paste_text.lower():
                     results.append({
                         "title": paste_title,
                         "url": paste_url,
@@ -59,8 +59,16 @@ def search_pastes(keywords):
 
     return results
 
+def load_keywords(filepath="keywords.txt"):
+    try:
+        with open(filepath, "r") as keyword_file:
+            return [line.strip().lower() for line in keyword_file if line.strip()]
+    except FileNotFoundError:
+        print(f"[{datetime.now()}] Keyword file not found: {filepath}")
+        return []
+
 def main():
-    keywords = ["example.com", "admin", "password", "exploit", "accounts"]
+    keywords = load_keywords()
     while True:
         results = search_pastes(keywords)
         for result in results:
