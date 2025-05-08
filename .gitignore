@@ -1,0 +1,33 @@
+# Bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment
+venv/
+env/
+
+# IDE files
+.idea/
+.vscode/
+
+# Log files
+*.log
+
+# .env or environment variable files
+.env
+
+# Coverage directory
+.coverage
+
+# Pytest cache
+.pytest_cache/
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# SQLite database (if used)
+db.sqlite3
